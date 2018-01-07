@@ -13,5 +13,6 @@
         android:weekSeparatorLineColor="@color/colorPrimary"
         android:focusedMonthDateColor="@color/colorPrimary"
         android:showWeekNumber="false"
+        android:layout_gravity="top"
         android:tag="my tag" />
 </LinearLayout>

@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -25,7 +26,11 @@ import java.util.List;
 import vf.client.com.vishwasfarm.R;
 import vf.client.com.vishwasfarm.ServiceListener.OnFragmentChange;
 import vf.client.com.vishwasfarm.ServiceListener.OnLatestSubscription;
+import vf.client.com.vishwasfarm.ServiceListener.OnPauseSubscriptionDateChange;
 import vf.client.com.vishwasfarm.ServiceListener.OnSubscription;
+import vf.client.com.vishwasfarm.ServiceListener.OnSubscriptionListClickListener;
+import vf.client.com.vishwasfarm.ServiceListener.OnUpdateSubscriptionResult;
+import vf.client.com.vishwasfarm.dialogs.CustomPauseSubscriptionDialog;
 import vf.client.com.vishwasfarm.fragments.AnnouncementFragment;
 import vf.client.com.vishwasfarm.fragments.ContactUsFragment;
 import vf.client.com.vishwasfarm.fragments.DiaryFragment;
@@ -40,7 +45,9 @@ import vf.client.com.vishwasfarm.model.VishwasProduct;
 import vf.client.com.vishwasfarm.model.VishwasProductList;
 import vf.client.com.vishwasfarm.model.VishwasUser;
 import vf.client.com.vishwasfarm.parser.SubscriptionProductParser;
+import vf.client.com.vishwasfarm.service.DeleteSubscriptionService;
 import vf.client.com.vishwasfarm.service.FetchLatestSubscriptionService;
+import vf.client.com.vishwasfarm.service.PauseSubscriptionService;
 
 import static vf.client.com.vishwasfarm.utility.VishwasConstants.LATEST_UBSCRIPTION_TAG;
 import static vf.client.com.vishwasfarm.utility.VishwasConstants.ProductData;
@@ -49,7 +56,8 @@ import static vf.client.com.vishwasfarm.utility.VishwasConstants.TopupData;
 import static vf.client.com.vishwasfarm.utility.VishwasConstants.UserData;
 
 
-public class MainActivity extends AppCompatActivity implements  OnFragmentChange, OnSubscription, OnLatestSubscription{
+public class MainActivity extends AppCompatActivity implements OnPauseSubscriptionDateChange,
+        OnFragmentChange, OnUpdateSubscriptionResult,OnSubscription, OnLatestSubscription, OnSubscriptionListClickListener{
 
     private String[] mNavigationDrawerItemTitles;
     private DrawerLayout mDrawerLayout;
@@ -77,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements  OnFragmentChange
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
             };
+    private CustomPauseSubscriptionDialog mCustomDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -339,5 +348,51 @@ public class MainActivity extends AppCompatActivity implements  OnFragmentChange
             fragmentManager.beginTransaction().replace(R.id.frame, lFragement,HomeFragment.class.getSimpleName()).commit();
 
         }
+    }
+
+    @Override
+    public void onPauseOrderClick(String fSubscriptionId) {
+
+        mCustomDialog=new CustomPauseSubscriptionDialog(this, fSubscriptionId);
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(mCustomDialog.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height =WindowManager.LayoutParams.WRAP_CONTENT;
+        mCustomDialog.show();
+        mCustomDialog.setCancelable(false);
+        mCustomDialog.getWindow().setAttributes(lp);
+
+
+    }
+
+    @Override
+    public void onDeleteOrderClick(String fSubscriptionId) {
+        new DeleteSubscriptionService(this,mVishwasUser.getmCustId().toString(),fSubscriptionId ).execute();
+    }
+
+    @Override
+    public void onEditOrderClick(String fItemPosition) {
+
+    }
+
+    @Override
+    public void onUpdateSubsciptionResult(boolean lStatus, String lResult) {
+
+        Fragment lFragement= getSupportFragmentManager().findFragmentByTag(LATEST_UBSCRIPTION_TAG);
+        if(lFragement==null){
+            lFragement=new SubscriptionFragment();
+        }
+
+        if (lFragement != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.frame, lFragement,LATEST_UBSCRIPTION_TAG).commit();
+            ((SubscriptionFragment)lFragement).onUpdateSubsciptionResult(lStatus,lResult);
+        }
+    }
+
+    @Override
+    public void onPauseSubscriptionDateModified(String fSubscriptionId,String fStartDate,String fEndDate) {
+        new PauseSubscriptionService(this,mVishwasUser.getmCustId().toString(),fSubscriptionId,fStartDate,fEndDate ).execute();
+
     }
 }

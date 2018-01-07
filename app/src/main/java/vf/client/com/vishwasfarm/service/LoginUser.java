@@ -11,7 +11,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import vf.client.com.vishwasfarm.ServiceListener.OnLogin;
-import vf.client.com.vishwasfarm.ServiceListener.OnRegistration;
 import vf.client.com.vishwasfarm.utility.VishwasServices;
 
 public class LoginUser extends AsyncTask<Void, Integer, String> implements VishwasServices{

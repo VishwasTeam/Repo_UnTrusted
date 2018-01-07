@@ -144,8 +144,12 @@ public class OnSwipeViewListener implements View.OnTouchListener {
                 mDownY = 0;
                 updateScroll(false);
 
-                deleteButtonStatus = DELETE_VIEW_INVALIDATE;
-                onSwipeRight(mRecyclerView, mDownPosition);
+
+                if(!isClickableView( fMotionEvent)){
+                    deleteButtonStatus = DELETE_VIEW_INVALIDATE;
+
+                    onSwipeRight(mRecyclerView, mDownPosition);
+                }
             } else {
 
                 deleteButtonStatus = DELETE_VIEW_INVISIBLE;
@@ -206,6 +210,8 @@ public class OnSwipeViewListener implements View.OnTouchListener {
                 lDeleteView = getChild(child, fMotionEvent,true);
 
                 if (lDeleteView!=null) {
+                    deleteButtonStatus = DELETE_VIEW_VISIBLE;
+
                     if(lDeleteView.getId() == R.id.prod_pause){
                         String lLicensePlateNumber = (String) lDeleteView.getTag();
                         mOnLicensePlateClickListener.onPauseOrderClick(lLicensePlateNumber);
@@ -282,6 +288,24 @@ public class OnSwipeViewListener implements View.OnTouchListener {
 
     }
 
+
+    private boolean isClickableView( MotionEvent fMotionEvent) {
+        View child= getHiddenLinearLayout();
+        View lChildView;
+        lChildView = getChild(child, fMotionEvent,true);
+
+        if(lChildView!=null){
+            switch (lChildView.getId()) {
+                case R.id.prod_pause:
+                    return true;
+                case R.id.prod_delete:
+                    return true;
+                case R.id.prod_modify:
+                    return true;
+            }
+        }
+            return false;
+    }
 
     private static void getHitRect(View v, Rect rect) {
         rect.left = (int) (v.getLeft() + v.getTranslationX());

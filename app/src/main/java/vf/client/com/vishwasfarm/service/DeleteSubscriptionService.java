@@ -1,5 +1,6 @@
 package vf.client.com.vishwasfarm.service;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -9,23 +10,21 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import vf.client.com.vishwasfarm.ServiceListener.OnDeleteSubscription;
-import vf.client.com.vishwasfarm.fragments.SubscriptionFragment;
+import vf.client.com.vishwasfarm.ServiceListener.OnUpdateSubscriptionResult;
+import vf.client.com.vishwasfarm.activity.MainActivity;
 import vf.client.com.vishwasfarm.utility.VishwasServices;
 
 public class DeleteSubscriptionService extends AsyncTask<Void, Integer, String> implements VishwasServices{
-
-	private SubscriptionFragment mSubscriptionFragment;
 	private String mSubCode;
 	String mCustCode;
 	int status ;
-	OnDeleteSubscription onDeleteSubscription;
+	OnUpdateSubscriptionResult onDeleteSubscription;
+	private Activity mActivity;
 
-	public DeleteSubscriptionService(SubscriptionFragment fFragment, String CustCode, String fsubID) {
+	public DeleteSubscriptionService(MainActivity fActivity, String CustCode, String fsubID) {
 
-
-		mSubscriptionFragment =fFragment;
-		onDeleteSubscription = (OnDeleteSubscription) mSubscriptionFragment;
+		mActivity=fActivity;
+		onDeleteSubscription = fActivity;
 		mCustCode=CustCode;
 		mSubCode=fsubID;
 
@@ -92,13 +91,13 @@ public class DeleteSubscriptionService extends AsyncTask<Void, Integer, String> 
 	protected void onPostExecute(String result) {
 
 		if(status==200){
-			onDeleteSubscription.onDeleteSubsciptionResult(true,result);
+			onDeleteSubscription.onUpdateSubsciptionResult(true,result);
 
-			Toast.makeText(mSubscriptionFragment.getActivity(),"Registration done Successfully", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mActivity,"Registration done Successfully", Toast.LENGTH_SHORT).show();
 		}
 		else{
-			onDeleteSubscription.onDeleteSubsciptionResult(false,result);
-			Toast.makeText(mSubscriptionFragment.getActivity(),"Unable to sregister user, Please try again later..", Toast.LENGTH_SHORT).show();
+			onDeleteSubscription.onUpdateSubsciptionResult(false,result);
+			Toast.makeText(mActivity,"Unable to sregister user, Please try again later..", Toast.LENGTH_SHORT).show();
 		}
 		super.onPostExecute(result);
 	}

@@ -129,7 +129,7 @@ public class LoginActivity extends AppCompatActivity implements  OnClickListener
                 // The next two lines tell the new client that “this” current class will handle connection stuff
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                        //fourth line adds the LocationServices API endpoint from GooglePlayServices
+                //fourth line adds the LocationServices API endpoint from GooglePlayServices
                 .addApi(LocationServices.API)
                 .build();
 
@@ -225,6 +225,7 @@ public class LoginActivity extends AppCompatActivity implements  OnClickListener
         mVishwasUser=mVishwasLoginDetails.getmVishwasUser();
         mVishwasMySubscriptionList=mVishwasLoginDetails.getmVishwasMySubscriptionList();
         mTopupProductList=mVishwasLoginDetails.getmTopupProductList();
+
         Intent startMainScope=new Intent(this,MainActivity.class);
         Bundle b = new Bundle();
         b.putParcelable(ProductData, mProductList);

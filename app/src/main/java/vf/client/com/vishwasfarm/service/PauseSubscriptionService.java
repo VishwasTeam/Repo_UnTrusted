@@ -1,5 +1,6 @@
 package vf.client.com.vishwasfarm.service;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -9,30 +10,29 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import vf.client.com.vishwasfarm.ServiceListener.OnDeleteSubscription;
-import vf.client.com.vishwasfarm.fragments.SubscriptionFragment;
+import vf.client.com.vishwasfarm.ServiceListener.OnUpdateSubscriptionResult;
+import vf.client.com.vishwasfarm.activity.MainActivity;
 import vf.client.com.vishwasfarm.utility.VishwasServices;
 
 public class PauseSubscriptionService extends AsyncTask<Void, Integer, String> implements VishwasServices{
 
-	private SubscriptionFragment mSubscriptionFragment;
 	private String mSubCode;
 	String mCustCode;
 	int status ;
-	OnDeleteSubscription onDeleteSubscription;
+	OnUpdateSubscriptionResult onUpdateSubscriptionResult;
 	private String mChgStartDate;
 	private String mChgEndDate;
+    Activity mActivity;
 
-	public PauseSubscriptionService(SubscriptionFragment fFragment, String CustCode, String fsubID, String fChgStartDate, String fChgEndDate) {
-
-
-		mSubscriptionFragment =fFragment;
-		onDeleteSubscription = (OnDeleteSubscription) mSubscriptionFragment;
+	public PauseSubscriptionService(MainActivity fActivity, String CustCode, String fsubID, String fChgStartDate, String fChgEndDate) {
+        mActivity=fActivity;
+        onUpdateSubscriptionResult=fActivity;
 		mCustCode=CustCode;
 		mSubCode=fsubID;
 		mChgStartDate=fChgStartDate;
 		mChgEndDate=fChgEndDate;
 	}
+
 
 	@Override
 	protected void onPreExecute() {
@@ -45,9 +45,9 @@ public class PauseSubscriptionService extends AsyncTask<Void, Integer, String> i
 			HttpURLConnection lSendMsgConnection = null;
 
 
-			String URL=mDeleteSubscription;
+			String URL=mPauseSubscription;
 
-			URL+="?cod_cust="+mCustCode+"&subs_id="+mSubCode+"chg_start_date"+mChgStartDate+"chg_end_date"+mChgEndDate;
+			URL+="?cod_cust="+mCustCode+"&subs_id="+mSubCode+"&chg_start_date="+mChgStartDate+"&chg_end_date="+mChgEndDate;
 
 			String formatedURL=URL.replaceAll(" ", "%20");
 
@@ -95,13 +95,13 @@ public class PauseSubscriptionService extends AsyncTask<Void, Integer, String> i
 	protected void onPostExecute(String result) {
 
 		if(status==200){
-			onDeleteSubscription.onDeleteSubsciptionResult(true,result);
+			onUpdateSubscriptionResult.onUpdateSubsciptionResult(true,result);
 
-			Toast.makeText(mSubscriptionFragment.getActivity(),"Registration done Successfully", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mActivity,"Registration done Successfully", Toast.LENGTH_SHORT).show();
 		}
 		else{
-			onDeleteSubscription.onDeleteSubsciptionResult(false,result);
-			Toast.makeText(mSubscriptionFragment.getActivity(),"Unable to sregister user, Please try again later..", Toast.LENGTH_SHORT).show();
+            onUpdateSubscriptionResult.onUpdateSubsciptionResult(false,result);
+			Toast.makeText(mActivity,"Unable to sregister user, Please try again later..", Toast.LENGTH_SHORT).show();
 		}
 		super.onPostExecute(result);
 	}

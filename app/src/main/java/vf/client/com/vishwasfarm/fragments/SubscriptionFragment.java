@@ -6,20 +6,19 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
 import vf.client.com.vishwasfarm.R;
-import vf.client.com.vishwasfarm.ServiceListener.OnDeleteSubscription;
 import vf.client.com.vishwasfarm.ServiceListener.OnFragmentChange;
-import vf.client.com.vishwasfarm.ServiceListener.OnSwipeViewListener;
+import vf.client.com.vishwasfarm.ServiceListener.OnUpdateSubscriptionResult;
 import vf.client.com.vishwasfarm.adapter.MySubscriptionAdapter;
 import vf.client.com.vishwasfarm.dialogs.CustomProductDialog;
 import vf.client.com.vishwasfarm.model.VishwasMySubscription;
@@ -27,7 +26,6 @@ import vf.client.com.vishwasfarm.model.VishwasMySubscriptionList;
 import vf.client.com.vishwasfarm.model.VishwasProductList;
 import vf.client.com.vishwasfarm.model.VishwasUser;
 import vf.client.com.vishwasfarm.parser.SubscriptionProductParser;
-import vf.client.com.vishwasfarm.service.PauseSubscriptionService;
 import vf.client.com.vishwasfarm.utility.ImageLoader;
 import vf.client.com.vishwasfarm.utility.SwipeDetector;
 
@@ -35,7 +33,7 @@ import static vf.client.com.vishwasfarm.utility.VishwasConstants.SubscritpionDat
 import static vf.client.com.vishwasfarm.utility.VishwasConstants.UserData;
 
 
-public class SubscriptionFragment extends Fragment implements View.OnClickListener,OnDeleteSubscription,OnSwipeViewListener.OnSubscriptionListClickListener {
+public class SubscriptionFragment extends Fragment implements View.OnClickListener,OnUpdateSubscriptionResult {
     private VishwasProductList mVishwasProductList;
     private VishwasMySubscriptionList mVishwasMySubscriptionList;
 
@@ -55,7 +53,7 @@ public class SubscriptionFragment extends Fragment implements View.OnClickListen
     private VishwasUser mVishwasUser;
     private SwipeDetector mSwipeDetector;
     private CustomGridLayoutManager mLayoutManager;
-    private OnSwipeViewListener mOnSwipeViewListener;
+   // private OnSwipeViewListener mOnSwipeViewListener;
 
     private String TAG=SubscriptionFragment.class.getSimpleName();
 
@@ -92,8 +90,8 @@ public class SubscriptionFragment extends Fragment implements View.OnClickListen
         mySubscriptionList = (RecyclerView) rootView.findViewById(R.id.subscription_list);
 
 
-        mOnSwipeViewListener = new OnSwipeViewListener(mySubscriptionList, (OnSwipeViewListener.OnSubscriptionListClickListener) this);
-        mySubscriptionList.setOnTouchListener(mOnSwipeViewListener);
+       // mOnSwipeViewListener = new OnSwipeViewListener(mySubscriptionList, (OnSwipeViewListener.OnSubscriptionListClickListener) this);
+       // mySubscriptionList.setOnTouchListener(mOnSwipeViewListener);
 
         mMySubscriptionAdapter=new MySubscriptionAdapter(this,R.layout.my_subscriptions_adapter,mMySubscriptionList,mVishwasUser.getmCustId().toString());
 
@@ -117,28 +115,29 @@ public class SubscriptionFragment extends Fragment implements View.OnClickListen
     }
 
     @Override
-    public void onDeleteSubsciptionResult(boolean lStatus, String lResult) {
+    public void onUpdateSubsciptionResult(boolean lStatus, String lResult) {
         mVishwasMySubscriptionList=new SubscriptionProductParser().parse(lResult);
         mMySubscriptionList=mVishwasMySubscriptionList.getmVishwasMySubscriptionList();
        // mMySubscriptionAdapter=new MySubscriptionAdapter(this,R.layout.my_subscriptions_adapter,mMySubscriptionList,mVishwasUser.getmCustId().toString());
         if(mMySubscriptionAdapter!=null) {
          //   mySubscriptionList.setAdapter(mMySubscriptionAdapter);
             mMySubscriptionAdapter.notifyDataSetChanged();
+            if(mMySubscriptionList.size()==0){
+                mMySubscriptionAdapter=new MySubscriptionAdapter(this,R.layout.my_subscriptions_adapter,mMySubscriptionList,mVishwasUser.getmCustId().toString());
+                mySubscriptionList.setAdapter(mMySubscriptionAdapter);
+
+                Toast.makeText(getActivity(),"No data Available",Toast.LENGTH_SHORT).show();
+            }
+        }
+        else{
+            Toast.makeText(getActivity(),"No data Available",Toast.LENGTH_SHORT).show();
         }
     }
 
 
-    @Override
-    public void onPauseOrderClick(String fSubscriptionId) {
-        Log.d(TAG,"Pause Called");
 
-        String lStartDate="2017-11-25";
-        String lEndDate="2017-11-26";
 
-        new PauseSubscriptionService(this,mVishwasUser.getmCustId().toString(),fSubscriptionId,lStartDate,lEndDate ).execute();
-    }
-
-    @Override
+    /*@Override
     public void onDeleteOrderClick(String fLicensePlateNumber) {
         Log.d(TAG,"Delete Called");
     }
@@ -146,11 +145,13 @@ public class SubscriptionFragment extends Fragment implements View.OnClickListen
     @Override
     public void onEditOrderClick(String fItemPosition) {
         Log.d(TAG,"Called Called");
-    }
+    }*/
+/*
 
     public void swipeLeft(int tag) {
         mOnSwipeViewListener.onSwipeLeft(mySubscriptionList,tag);
     }
+*/
 
    /* AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
                 @Override

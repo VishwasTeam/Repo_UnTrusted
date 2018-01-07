@@ -11,9 +11,9 @@ import android.widget.TextView;
 import java.util.List;
 
 import vf.client.com.vishwasfarm.R;
+import vf.client.com.vishwasfarm.ServiceListener.OnSubscriptionListClickListener;
 import vf.client.com.vishwasfarm.fragments.SubscriptionFragment;
 import vf.client.com.vishwasfarm.model.VishwasMySubscription;
-import vf.client.com.vishwasfarm.service.DeleteSubscriptionService;
 import vf.client.com.vishwasfarm.utility.ImageLoader;
 
 /**
@@ -27,10 +27,12 @@ public class MySubscriptionAdapter extends RecyclerView.Adapter<MySubscriptionAd
     List<VishwasMySubscription> mSubscritionList;
     public ImageLoader imageLoader;
     private String mCodeCust;
+    private OnSubscriptionListClickListener mOnLicensePlateClickListener;
 
     public MySubscriptionAdapter(SubscriptionFragment fFragment, int resourceId,
                                  List<VishwasMySubscription> items, String fCodeCust) {
         this.context = fFragment.getActivity().getApplicationContext();
+        mOnLicensePlateClickListener= (OnSubscriptionListClickListener) fFragment.getActivity();
         mFragment = fFragment;
         mSubscritionList = items;
         imageLoader = new ImageLoader(context);
@@ -40,7 +42,17 @@ public class MySubscriptionAdapter extends RecyclerView.Adapter<MySubscriptionAd
     @Override
     public void onClick(View fView) {
         if (fView.getId() == R.id.prod_delete) {
-            new DeleteSubscriptionService(mFragment, mCodeCust, fView.getTag().toString()).execute();
+            String lSubscriptionId = (String) fView.getTag();
+            mOnLicensePlateClickListener.onDeleteOrderClick(lSubscriptionId);
+        }
+        else         if (fView.getId() == R.id.prod_modify) {
+            String lSubscriptionId = (String) fView.getTag();
+            mOnLicensePlateClickListener.onEditOrderClick(lSubscriptionId);
+        }
+
+        else         if (fView.getId() == R.id.prod_pause) {
+            String lSubscriptionId = (String) fView.getTag();
+            mOnLicensePlateClickListener.onPauseOrderClick(lSubscriptionId);
         }
 
     }
@@ -67,6 +79,10 @@ public class MySubscriptionAdapter extends RecyclerView.Adapter<MySubscriptionAd
         holder.imageView.setScaleType(ImageView.ScaleType.FIT_XY);
        // holder.btnDelete.setOnClickListener(this);
         //holder.mSwipeLeft.setOnClickListener(this);
+        holder.btnDelete.setOnClickListener(this);
+        holder.btnModify.setOnClickListener(this);
+        holder.btnPause.setOnClickListener(this);
+
         holder.btnDelete.setTag(mSubscritionList.get(position).getmSubs_id());
         holder.btnModify.setTag(mSubscritionList.get(position).getmSubs_id());
 
